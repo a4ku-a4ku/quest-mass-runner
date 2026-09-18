@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: a4ku-quest-runner
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.4
+      - key: PORT
+        value: 10000
+      - key: MAX_CONCURRENT
+        value: "12"
+      - key: ADMIN_USER
+        value: a4ku
+      - key: ADMIN_PASS
+        value: "842001"

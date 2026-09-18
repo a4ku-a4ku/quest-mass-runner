@@ -1,0 +1,15 @@
+{
+  "name": "a4ku-mass-quest-runner",
+  "version": "1.0.0",
+  "description": "High-concurrency Node.js multi-account Discord quest runner with 10-slot pool and live dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["discord", "quest", "automation", "mass-runner", "a4ku"],
+  "author": "A4KU",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
