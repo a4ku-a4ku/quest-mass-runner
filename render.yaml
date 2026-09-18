@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: a4ku-quest-runner
+    name: unq
     env: node
     plan: free
     region: oregon
