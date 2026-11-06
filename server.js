@@ -93,11 +93,13 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    // Cache static assets, but don't cache index.html
-    if (ext === ".html") {
+    // Never cache HTML, CSS, or JS to ensure instant live updates
+    if (ext === ".html" || ext === ".css" || ext === ".js") {
       res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
     } else {
-      res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
+      res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day for images
     }
 
     res.writeHead(200, { "Content-Type": contentType });
