@@ -18,6 +18,7 @@ function sanitizeToken(raw) {
     clean = clean.slice(1, -1).trim();
   }
   clean = clean.replace(/^(authorization|token):\s*/i, "").trim();
+  clean = clean.replace(/[^\x00-\x7F]/g, "").trim();
   return clean;
 }
 
@@ -37,6 +38,21 @@ class PoolManager {
     this.failedAccounts = []; // Array of failed account summaries
     this.seenTokens = new Set(); // Prevent duplicate runs in the same session
     this.activeCooldowns = new Map(); // questId -> { questId, questName, retryAfterSec, expiresAt, recordedAt }
+
+    // Cumulative account counts (Never capped at 200!)
+    this.totalCompletedCount = Number(config.totalCompletedCount || 0);
+    this.totalFailedCount = Number(config.totalFailedCount || 0);
+
+    // Auto-detect previously completed count from completed_tokens.txt
+    try {
+      if (fs.existsSync(this.completedTokensFilePath)) {
+        const lines = fs.readFileSync(this.completedTokensFilePath, "utf8")
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter((l) => l && !l.startsWith("#"));
+        this.totalCompletedCount = Math.max(this.totalCompletedCount, lines.length);
+      }
+    } catch (e) {}
 
     // Logs buffer (last 200 events for live dashboard)
     this.logs = [];
@@ -239,6 +255,7 @@ class PoolManager {
     };
 
     if (outcome === "completed") {
+      this.totalCompletedCount++;
       this.completedAccounts.unshift(summary);
       if (this.completedAccounts.length > 200) {
         this.completedAccounts.pop();
@@ -268,6 +285,7 @@ class PoolManager {
         0xffffff
       );
     } else {
+      this.totalFailedCount++;
       this.failedAccounts.unshift(summary);
       if (this.failedAccounts.length > 200) {
         this.failedAccounts.pop();
@@ -319,8 +337,8 @@ class PoolManager {
       maxSlots: this.maxConcurrent,
       activeCount,
       waitingQueueCount: this.waitingQueue.length,
-      completedCount: this.completedAccounts.length,
-      failedCount: this.failedAccounts.length,
+      completedCount: Math.max(this.totalCompletedCount, this.completedAccounts.length),
+      failedCount: Math.max(this.totalFailedCount, this.failedAccounts.length),
       totalLoaded: this.seenTokens.size,
       slots: activeSlots,
       recentCompleted: this.completedAccounts.slice(0, 10),

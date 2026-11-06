@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 /**
  * A4KU Discord API Client for Node.js
  * Handles Discord API communication, Super-Properties, and automatic rate-limit backoff.
@@ -39,8 +42,10 @@ function makeSuperProperties(buildNumber = 504649) {
 }
 
 function getDiscordHeaders(token, extra = {}) {
+  // Ensure token is safe ASCII only
+  const cleanToken = String(token || "").replace(/[^\x00-\x7F]/g, "").trim();
   return {
-    Authorization: token,
+    Authorization: cleanToken,
     "Content-Type": "application/json",
     Accept: "*/*",
     "Accept-Language": "en-US,en;q=0.9",
@@ -100,13 +105,32 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
   return fetch(url, options);
 }
 
+
+function getDiscordApiBase() {
+  const envBase = process.env.DISCORD_API_BASE || process.env.DISCORD_PROXY_URL;
+  if (envBase) {
+    return envBase.replace(/\/+$/, '');
+  }
+  try {
+    const configPath = path.resolve(process.cwd(), 'config.json');
+    if (fs.existsSync(configPath)) {
+      const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (cfg.discordApiBase || cfg.discordProxyUrl) {
+        return (cfg.discordApiBase || cfg.discordProxyUrl).replace(/\/+$/, '');
+      }
+    }
+  } catch (e) {}
+  return 'https://discord.com/api/v9';
+}
+
 class DiscordClient {
   constructor(token) {
     this.token = token.trim();
+    this.apiBase = getDiscordApiBase();
   }
 
   async validate() {
-    const resp = await fetchWithRetry("https://discord.com/api/v9/users/@me", {
+    const resp = await fetchWithRetry(`${this.apiBase}/users/@me`, {
       headers: getDiscordHeaders(this.token),
     });
 
@@ -132,7 +156,7 @@ class DiscordClient {
   }
 
   async fetchQuests() {
-    const resp = await fetchWithRetry("https://discord.com/api/v9/quests/@me", {
+    const resp = await fetchWithRetry(`${this.apiBase}/quests/@me`, {
       headers: getDiscordHeaders(this.token),
     });
 
@@ -158,7 +182,7 @@ class DiscordClient {
       traffic_metadata_sealed: payload.traffic_metadata_sealed || null,
     };
 
-    const resp = await fetchWithRetry(`https://discord.com/api/v9/quests/${questId}/enroll`, {
+    const resp = await fetchWithRetry(`${this.apiBase}/quests/${questId}/enroll`, {
       method: "POST",
       headers: getDiscordHeaders(this.token),
       body: JSON.stringify(body),
@@ -174,7 +198,7 @@ class DiscordClient {
       if (waitSec <= 15) {
         await new Promise((r) => setTimeout(r, (waitSec + 1) * 1000));
         await throttleEnroll();
-        const retryResp = await fetch(`https://discord.com/api/v9/quests/${questId}/enroll`, {
+        const retryResp = await fetch(`${this.apiBase}/quests/${questId}/enroll`, {
           method: "POST",
           headers: getDiscordHeaders(this.token),
           body: JSON.stringify(body),
@@ -189,7 +213,7 @@ class DiscordClient {
   }
 
   async sendVideoProgress(questId, timestamp) {
-    const resp = await fetchWithRetry(`https://discord.com/api/v9/quests/${questId}/video-progress`, {
+    const resp = await fetchWithRetry(`${this.apiBase}/quests/${questId}/video-progress`, {
       method: "POST",
       headers: getDiscordHeaders(this.token, {
         Referer: `https://discord.com/quests/${questId}`,
@@ -202,7 +226,7 @@ class DiscordClient {
   }
 
   async sendHeartbeat(questId, streamKey, terminal = false) {
-    const resp = await fetchWithRetry(`https://discord.com/api/v9/quests/${questId}/heartbeat`, {
+    const resp = await fetchWithRetry(`${this.apiBase}/quests/${questId}/heartbeat`, {
       method: "POST",
       headers: getDiscordHeaders(this.token),
       body: JSON.stringify({

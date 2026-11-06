@@ -9,5 +9,6 @@
   "webhookUrl": "",
   "reloadIntervalSeconds": 10,
   "adminSalt": "85df2ef61cd39da948a1d4ad6d0ad323",
-  "adminPassHash": "1cdc3a0500c246c274970b7edc8d614ccf39575283b7d461db23f580730ecd4f84ab708e4668dc662487b3ce57ed160452756db161efdb1496e952f9e1cac2df"
+  "adminPassHash": "1cdc3a0500c246c274970b7edc8d614ccf39575283b7d461db23f580730ecd4f84ab708e4668dc662487b3ce57ed160452756db161efdb1496e952f9e1cac2df",
+  "discordApiBase": ""
 }
