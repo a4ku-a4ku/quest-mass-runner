@@ -40,7 +40,7 @@ Click the button below to deploy this repository to Render for free:
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/a4ku-a4ku/quest-mass-runner)
 
 Render automatically detects `render.yaml` and configures:
-- Name: **`unq`** ➔ Live at `https://unq.onrender.com`
+- Name: **`b2r`** ➔ Live at `https://b2r.onrender.com`
 - Environment: Node 18
 - Start Command: `npm start`
 - Auto-deploy on git push
@@ -76,7 +76,7 @@ quest-mass-runner/
 ├── tokens.txt               # Put your Discord user tokens here (1 per line)
 ├── config.json              # Concurrency limit (default 12), port, intervals, admin hash
 ├── package.json             # Project definition
-├── render.yaml              # Render Cloud Blueprint (unq.onrender.com)
+├── render.yaml              # Render Cloud Blueprint (b2r.onrender.com)
 ├── server.js                # HTTP Server with SSE stream, REST API and Security Engine
 ├── engine/
 │   ├── discord.js           # Discord API client (Super Properties, retry backoff, pacing)

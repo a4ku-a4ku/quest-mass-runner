@@ -10,8 +10,8 @@ echo.
 npx wrangler deploy
 echo.
 echo ============================================================
-echo Once deployed, copy your worker URL (e.g. https://unq-discord-proxy.<name>.workers.dev)
+echo Once deployed, copy your worker URL (e.g. https://b2r-discord-proxy.<name>.workers.dev)
 echo and set it in your Render environment variables or config.json:
-echo   DISCORD_API_BASE = https://unq-discord-proxy.<name>.workers.dev/api/v9
+echo   DISCORD_API_BASE = https://b2r-discord-proxy.<name>.workers.dev/api/v9
 echo ============================================================
 pause
